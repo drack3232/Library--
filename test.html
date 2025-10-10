@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Онлайн-бібліотека - Тест</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .book { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 8px; }
+        .search { margin: 20px 0; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>📚 Онлайн-бібліотека - Тестова версія</h1>
+    
+    <div class="search">
+        <input type="text" id="searchInput" placeholder="Пошук книг...">
+        <button onclick="loadBooks()">Пошук</button>
+        <button onclick="loadGenres()">Жанри</button>
+        <button onclick="loadPopular()">Популярні</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        async function loadBooks() {
+            try {
+                const query = document.getElementById('searchInput').value;
+                const url = query ? `/books/search/advanced?query=${query}` : '/books';
+                
+                const response = await fetch('http://localhost:5000' + url);
+                const books = await response.json();
+                
+                displayBooks(books);
+            } catch (error) {
+                document.getElementById('results').innerHTML = 
+                    '<p style="color: red;">Помилка: ' + error + '</p>';
+            }
+        }
+
+        async function loadGenres() {
+            try {
+                const response = await fetch('http://localhost:5000/books/genres');
+                const genres = await response.json();
+                
+                document.getElementById('results').innerHTML = 
+                    '<h3>Жанри:</h3><ul>' + 
+                    genres.map(genre => `<li>${genre}</li>`).join('') + 
+                    '</ul>';
+            } catch (error) {
+                console.error('Помилка:', error);
+            }
+        }
+
+        async function loadPopular() {
+            try {
+                const response = await fetch('http://localhost:5000/books/popular');
+                const books = await response.json();
+                displayBooks(books);
+            } catch (error) {
+                console.error('Помилка:', error);
+            }
+        }
+
+        function displayBooks(books) {
+            const booksHTML = books.map(book => `
+                <div class="book">
+                    <h3>${book.title}</h3>
+                    <p><strong>Автор:</strong> ${book.author}</p>
+                    <p><strong>Рік:</strong> ${book.year} | <strong>Жанр:</strong> ${book.genre}</p>
+                    <p><strong>Рейтинг:</strong> ${book.rating} ⭐ (${book.reviews_count} відгуків)</p>
+                    <p>${book.description}</p>
+                    ${book.cover_url ? `<img src="${book.cover_url}" width="100">` : ''}
+                </div>
+            `).join('');
+            
+            document.getElementById('results').innerHTML = 
+                `<h3>Знайдено книг: ${books.length}</h3>` + booksHTML;
+        }
+
+        // Автоматично завантажити книги при старті
+        loadBooks();
+    </script>
+</body>
+</html>

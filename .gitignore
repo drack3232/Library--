@@ -1,0 +1,11 @@
+.env
+# Папки з залежностями
+node_modules/
+
+# Файли середовища
+.env
+sever.env
+
+# Папки збірки
+build/
+dist/
