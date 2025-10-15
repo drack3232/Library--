@@ -72,9 +72,9 @@ app.post("/login", (req, res) => {
 });
 
 // ==================== ОСОБИСТИЙ КАБІНЕТ ====================
-app.get("/profile", authenticateToken, (reg, res) =>{
+app.get("/profile", authenticateToken, (req, res) =>{
   const userID = req.user.id;
-  const sqlQuery = "SELECT id, name, email, FROM users WHERE id=?"
+  const sqlQuery = "SELECT id, name, email FROM users WHERE id=?"
 
   db.query(sqlQuery, [userID], (err, users)=>{
     if (err){
@@ -165,6 +165,23 @@ app.delete("/books/:id", (req, res) => {
   });
 });
 
+// Встав цей код у server.js
+
+// Отримати одну книгу за id
+app.get("/books/:id", (req, res) => {
+  const bookId = req.params.id;
+  const sqlQuery = "SELECT * FROM books WHERE id = ?";
+
+  db.query(sqlQuery, [bookId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: "Помилка сервера" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Книгу не знайдено" });
+    }
+    res.json(results[0]);
+  });
+});
 // ==================== НОВІ ЕНДПОІНТИ KSD ====================
 
 // Оновлення рейтингу книги (допоміжна функція)
