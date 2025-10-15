@@ -4,6 +4,7 @@ const cors = require("cors");
 require('dotenv').config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+//const { use } = require("react");
 const SECRET = "supersecret"; // краще винести у .env
 const app = express();
 
@@ -69,6 +70,26 @@ app.post("/login", (req, res) => {
     res.json({ message: "✅ Вхід успішний", token, user: { id: user.id, name: user.name, email: user.email } });
   });
 });
+
+// ==================== ОСОБИСТИЙ КАБІНЕТ ====================
+app.get("/profile", authenticateToken, (reg, res) =>{
+  const userID = req.user.id;
+  const sqlQuery = "SELECT id, name, email, FROM users WHERE id=?"
+
+  db.query(sqlQuery, [userID], (err, users)=>{
+    if (err){
+      console.error("Error receiving profile:", err);
+      return res.status(500).json({error:"Server's error "});
+    
+  }
+  if(users.length ===0){
+    return res.status(404).json({error: "User not found"})
+  }
+res.json(users[0])
+  })
+})
+
+
 
 // ==================== КОШИК ====================
 app.post("/cart/add", authenticateToken, (req, res) => {
